@@ -53,11 +53,42 @@ void infix_postfix(char infix[]){
     postfix[j]='\0';
     puts(postfix);
 }
+int check(char infix[])
+{
+    int i,c1=0,c2=0;
+    for(i=0;i<strlen(infix);++i)
+    {
+        char a;
+        a=infix[i];
+        if(a=='(')
+            c1++;
+        if(a==')')
+            c2++;
+    }
+    if(c1!=c2)
+        return -1;
+    else
+        return 0;
+
+}
 int main()
 {
     char exp[30];
+    int c;
     printf("enter a expression:\n");
     gets(exp);
-    infix_postfix(exp);
+    c=check(exp);
+
+    if(c==-1)
+        printf("Invalid input");
+
+    else
+        infix_postfix(exp);
+
+
     return 0;
 }
+
+//X^Y^Z-M+N+P/Q
+//((A+B)*c-(d-e))^(f+g)
+//a^b*c-d+e/f/(g+h)
