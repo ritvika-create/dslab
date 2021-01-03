@@ -1,157 +1,162 @@
 #include<stdio.h>
 #include<stdlib.h>
 struct node
-{
-	 int info;
-	 struct node *llink;
-	 struct node *rlink;
-	 };
+ {
+  int info;
+  struct node *rlink;
+  struct node *llink;
+ };
 typedef struct node *NODE;
 NODE getnode()
 {
-	NODE x;
-	x=(NODE)malloc(sizeof(struct node));
-	if(x==NULL)
-	{
-		printf("mem full\n");
-		exit(0);
-		}
-	return x;
-	}
+NODE x;
+x=(NODE)malloc(sizeof(struct node));
+if(x==NULL)
+ {
+  printf("mem full\n");
+  exit(0);
+ }
+ return x;
+}
 void freenode(NODE x)
 {
-	free(x);
+free(x);
 }
-NODE dinsert_front(int item,NODE head)
+NODE insert(NODE root,int item)
 {
-NODE temp,cur;
+NODE temp,cur,prev;
 temp=getnode();
+temp->rlink=NULL;
+temp->llink=NULL;
 temp->info=item;
-cur=head->rlink;
-head->rlink=temp;
-temp->llink=head;
-temp->rlink=cur;
-cur->llink=temp;
-return head;
+if(root==NULL)
+ return temp;
+prev=NULL;
+cur=root;
+while(cur!=NULL)
+{
+prev=cur;
+cur=(item<cur->info)?cur->llink:cur->rlink;
 }
-NODE dinsert_leftpos(int item,NODE head ,int pos){
-  NODE temp,cur,perv;temp=getnode();temp->info=item;
-  int i=1;
-  cur=head->rlink;
-  perv=NULL;
-  while(i<pos && cur!=head){
-    perv =cur;
-  cur=cur->rlink;i++;
+if(item<prev->info)
+ prev->llink=temp;
+else
+ prev->rlink=temp;
+return root;
+}
+void display(NODE root,int i)
+{
+int j;
+if(root!=NULL)
+ {
+  display(root->rlink,i+1);
+  for(j=0;j<i;j++)
+	  printf("  ");
+   printf("%d\n",root->info);
+	 display(root->llink,i+1);
+ }
+}
+NODE delete(NODE root,int item)
+{
+NODE cur,parent,q,suc;
+if(root==NULL)
+{
+printf("empty\n");
+return root;
+}
+parent=NULL;
+cur=root;
+while(cur!=NULL&&item!=cur->info)
+{
+parent=cur;
+cur=(item<cur->info)?cur->llink:cur->rlink;
+}
+if(cur==NULL)
+{
+ printf("not found\n");
+ return root;
+}
+if(cur->llink==NULL)
+ q=cur->rlink;
+else if(cur->rlink==NULL)
+ q=cur->llink;
+else
+ {
+ suc=cur->rlink;
+ while(suc->llink!=NULL)
+  suc=suc->llink;
+ suc->llink=cur->llink;
+ q=cur->rlink;
+ }
+ if(parent==NULL)
+  return q;
+ if(cur==parent->llink)
+  parent->llink=q;
+ else
+  parent->rlink=q;
+ freenode(cur);
+ return root;
+ }
+
+void preorder(NODE root)
+{
+if(root!=NULL)
+ {
+  printf("%d\n",root->info);
+  preorder(root->llink);
+  preorder(root->rlink);
   }
-  if(cur==head)
-  {
-   printf("POSITION not found\n");
-   return head;
-   }
-  perv ->rlink=temp;
-  temp->rlink=cur;
-  temp->llink=perv;
-  cur->llink =temp;
-  return head;
-}
-NODE dinsert_rear(int item,NODE head)
+ }
+void postorder(NODE root)
 {
-NODE temp,cur;
-temp=getnode();
-temp->info=item;
-cur=head->llink;
-head->llink=temp;
-temp->rlink=head;
-temp->llink=cur;
-cur->rlink=temp;
-return head;
-}
-NODE ddelete_front(NODE head)
+if(root!=NULL)
+ {
+
+  postorder(root->llink);
+  postorder(root->rlink);
+  printf("%d\n",root->info);
+  }
+ }
+void inorder(NODE root)
 {
-NODE cur,next;
-if(head->rlink==head)
-{
-printf("dq empty\n");
-return head;
-}
-cur=head->rlink;
-next=cur->rlink;
-head->rlink=next;
-next->llink=head;
-printf("the node deleted is %d",cur->info);
-freenode(cur);
-return head;
-}
-NODE ddelete_rear(NODE head)
-{
-NODE cur,prev;
-if(head->rlink==head)
-{
-printf("dq empty\n");
-return head;
-}
-cur=head->llink;
-prev=cur->llink;
-head->llink=prev;
-prev->rlink=head;
-printf("the node deleted is %d",cur->info);
-freenode(cur);
-return head;
-}
-void display(NODE head)
-{
-NODE temp;
-if(head->rlink==head)
-{
-printf("dq empty\n");
-return;
-}
-printf("contents of dq\n");
-temp=head->rlink;
-while(temp!=head)
-{
-printf("%d \t",temp->info);
-temp=temp->rlink;
-}
-printf("\n");
-}
+if(root!=NULL)
+ {
+
+  inorder(root->llink);
+  printf("%d\n",root->info);
+  inorder(root->rlink);
+  }
+ }
 void main()
 {
-NODE head,last;
-int item,pos, choice;
-head=getnode();
-head->rlink=head;
-head->llink=head;
-
+int item,choice;
+NODE root=NULL;
+clrscr();
 for(;;)
 {
-	printf("\n1:insert front\t2:insert rear\t3:delete front\t4:delete rear\t5:display\t6:left-side-insert\t7:exit\n");
-	printf("enter the choice\n");
-	scanf("%d",&choice);
-	switch(choice)
-	{
-		case 1: printf("enter the item at front end\n");
-			scanf("%d",&item);
-			last=dinsert_front(item,head);
-			break;
-		case 2: printf("enter the item at rear end\n");
-			scanf("%d",&item);
-			last=dinsert_rear(item,head);
-			break;
-		case 3:last=ddelete_front(head);
-			break;
-		case 4: last=ddelete_rear(head);
-			break;
-		case 5: display(head);
-			break;
-      case 6:  printf("enter the item at left side pos to entered\n");
-  			scanf("%d",&item);
-        printf("POSITION\t");
-    			scanf("%d",&pos);
-  			last=dinsert_leftpos(item,head,pos);
-  			break;
-		default:exit(0);
-		}
+printf("\n1.insert\n2.display\n3.pre\n4.post\n5.in\n6.delete\n7.exit\n");
+printf("enter the choice\n");
+scanf("%d",&choice);
+switch(choice)
+ {
+  case 1:printf("enter the item\n");
+		 scanf("%d",&item);
+		 root=insert(root,item);
+		 break;
+  case 2:display(root,0);
+		 break;
+  case 3:preorder(root);
+		 break;
+  case 4:postorder(root);
+		 break;
+  case 5:inorder(root);
+		 break;
+  case 6:printf("enter the item\n");
+		 scanf("%d",&item);
+		 root=delete(root,item);
+		 break;
+  default:exit(0);
+		  break;
+	  }
 	}
-getch();
-}
+ }
